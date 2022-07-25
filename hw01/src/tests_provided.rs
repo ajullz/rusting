@@ -2,8 +2,8 @@
 
 use crate::problem1::{sum, dedup, filter};
 use crate::problem2::mat_mult;
-//use problem3::sieve;
-//use problem4::{hanoi, Peg};
+use crate::problem3::sieve;
+use crate::problem4::{hanoi, Peg};
 
 //
 // Problem 1
@@ -56,8 +56,6 @@ fn test_mat_mult_identity() {
     }
 }
 
-/*
-
 //
 // Problem 3
 //
@@ -77,5 +75,3 @@ fn test_hanoi_1_disks() {
     assert_eq!(vec![(Peg::A, Peg::C)], result);
     assert_eq!(1, result.len());
 }
-
-*/

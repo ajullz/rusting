@@ -2,8 +2,8 @@
 
 use crate::problem1::{sum, dedup, filter};
 use crate::problem2::{mat_mult, Matrix};
-//use problem3::sieve;
-//use problem4::{hanoi, Peg};
+use crate::problem3::sieve;
+use crate::problem4::{hanoi, Peg};
 
 //
 // Problem 1
@@ -75,15 +75,19 @@ fn test_mat_mult_good_case() {
     assert_eq!(mat_mult(&mat1, &mat2), expected);
 }
 
-/*
-
 //
 // Problem 3
 //
 
 #[test]
 fn test_sieve_basic() {
-    assert_eq!(vec![2,3,5,7,11], sieve(12));
+    assert_eq!(Vec::<u32>::new(), sieve(0));
+    assert_eq!(Vec::<u32>::new(), sieve(1));
+    assert_eq!(vec![2, 3, 5, 7, 11, 13, 17, 19, 
+                    23, 29, 31, 37, 41, 43, 47, 
+                    53, 59, 61, 67, 71, 73, 79, 
+                    83, 89, 97, 101, 103, 107, 
+                    109, 113], sieve(121));
 }
 
 //
@@ -91,10 +95,7 @@ fn test_sieve_basic() {
 //
 
 #[test]
-fn test_hanoi_1_disks() {
-    let result = hanoi(1, Peg::A, Peg::B, Peg::C);
-    assert_eq!(vec![(Peg::A, Peg::C)], result);
-    assert_eq!(1, result.len());
+fn test_hanoi_4_disks() {
+    let result = hanoi(4, Peg::A, Peg::B, Peg::C);
+    assert_eq!(15, result.len());
 }
-
-*/

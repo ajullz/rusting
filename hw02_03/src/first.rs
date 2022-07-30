@@ -84,13 +84,13 @@ mod test {
     #[test]
     fn basics() {
         let mut bst = BST::new();
-        println!("bst: {:?}", bst);
+        //println!("bst: {:?}", bst);
         assert_eq!(true, bst.insert(1));
         assert_eq!(false, bst.insert(1));
         assert_eq!(true, bst.insert(2));
         assert_eq!(true, bst.insert(3));
         assert_eq!(true, bst.insert(4));
-        println!("bst: {:?}", bst);
+        //println!("bst: {:?}", bst);
         assert_eq!(true, bst.search(4));
         assert_eq!(false, bst.search(5));
     }

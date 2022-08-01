@@ -21,16 +21,11 @@ impl<T: PartialOrd  + Copy> Node<T> {
 }
 
 #[derive(Debug)]
-pub struct BST<T: std::cmp::PartialOrd + Copy> {
+pub struct BST<T: PartialOrd + Copy> {
     root: Link<T>,
 }
 
-#[derive(Debug)]
-pub struct IntoIter<T: PartialOrd + Copy> {
-    next: VecDeque<T>,
-}
-
-impl<T: std::cmp::PartialOrd  + Copy> BST<T> {
+impl<T: PartialOrd  + Copy> BST<T> {
     pub fn new() -> Self {
         BST { root: Link(None) }
     }
@@ -94,6 +89,15 @@ impl<T: PartialOrd  + Copy> Link<T> {
     }
 }
 
+/*
+    Into Iter
+ */
+
+#[derive(Debug)]
+pub struct IntoIter<T: PartialOrd + Copy> {
+    next: VecDeque<T>,
+}
+
 impl<T: PartialOrd  + Copy> IntoIterator for BST<T> {
     type Item = T;
     type IntoIter = IntoIter<Self::Item>;
@@ -109,6 +113,45 @@ impl<T: PartialOrd  + Copy> Iterator for IntoIter<T> {
     type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
         self.next.pop_front()
+    }
+}
+
+/*
+    Iter
+ */
+
+#[derive(Debug)]
+pub struct Iter<'a, T: PartialOrd + Copy> {
+    next: VecDeque<&'a Link<T>>,
+}
+
+impl<'a, T: PartialOrd + Copy> IntoIterator for &'a BST<T> {
+    type Item = &'a T;
+    type IntoIter = Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        Self::IntoIter {
+            next: VecDeque::from(vec![&self.root]),
+        }
+    }
+}
+
+impl<'a, T: PartialOrd  + Copy> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+    fn next(&mut self) -> Option<Self::Item> {
+        let current = self.next.pop_front().unwrap();
+        match current {
+            Link(None) => None,
+            Link(Some(node)) => {
+                if node.left.0.is_some() {
+                    self.next.push_back(&node.left);
+                }
+                if node.right.0.is_some() {
+                    self.next.push_back(&node.right);
+                }
+                Some(&node.elem)
+            }
+        }
     }
 }
 
@@ -140,6 +183,25 @@ mod test {
         let expected = vec![4, 5, 6, 8, 9, 11, 12];
         for (expected, val) in expected.into_iter().zip(bst.into_iter()) {
             assert_eq!(expected, val);
+        }
+    }
+
+    #[test]
+    fn into_iter_ref() {
+        let mut bst = BST::<i32>::new();
+        bst.insert(8);
+        bst.insert(5);
+        bst.insert(11);
+        bst.insert(4);
+        bst.insert(6);
+        bst.insert(9);
+        bst.insert(12);
+
+        let expected = vec![8, 5, 11, 4, 6, 9, 12];
+        let bst_ref = &bst;
+        println!("ref iter: {:?}", bst_ref.into_iter());
+        for (expected, val) in expected.into_iter().zip(bst_ref.into_iter()) {
+            assert_eq!(expected, *val);
         }
     }
 }

@@ -87,6 +87,17 @@ impl<T: PartialOrd  + Copy> Link<T> {
         }
         VecDeque::new()
     }
+
+    fn postorder(&mut self) -> VecDeque<&mut T> {
+        if let Link(Some(node)) = self {
+            let mut left = node.left.postorder();
+            let mut right = node.right.postorder();
+            right.push_back(&mut node.elem);
+            left.append(&mut right);
+            return left;
+        }
+        VecDeque::new()
+    }
 }
 
 /*
@@ -143,15 +154,43 @@ impl<'a, T: PartialOrd  + Copy> Iterator for Iter<'a, T> {
         match current {
             Link(None) => None,
             Link(Some(node)) => {
-                if node.left.0.is_some() {
-                    self.next.push_back(&node.left);
-                }
                 if node.right.0.is_some() {
-                    self.next.push_back(&node.right);
+                    self.next.push_front(&node.right);
+                }
+                if node.left.0.is_some() {
+                    self.next.push_front(&node.left);
                 }
                 Some(&node.elem)
             }
         }
+    }
+}
+
+/*
+    IterMut
+ */
+
+ 
+#[derive(Debug)]
+pub struct IterMut<'a, T: PartialOrd + Copy> {
+    next: VecDeque<&'a mut T>,
+}
+
+impl<'a, T: PartialOrd + Copy> IntoIterator for &'a mut BST<T> {
+    type Item = &'a mut T;
+    type IntoIter = IterMut<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        Self::IntoIter {
+            next: self.root.postorder(),
+        }
+    }
+}
+
+impl<'a, T: PartialOrd  + Copy> Iterator for IterMut<'a, T> {
+    type Item = &'a mut T;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next.pop_front()
     }
 }
 
@@ -197,11 +236,36 @@ mod test {
         bst.insert(9);
         bst.insert(12);
 
-        let expected = vec![8, 5, 11, 4, 6, 9, 12];
+        let expected = vec![8, 5, 4, 6, 11, 9, 12];
         let bst_ref = &bst;
-        println!("ref iter: {:?}", bst_ref.into_iter());
         for (expected, val) in expected.into_iter().zip(bst_ref.into_iter()) {
             assert_eq!(expected, *val);
+        }
+    }
+
+    #[test]
+    fn into_iter_mut() {
+        let mut bst = BST::<i32>::new();
+        bst.insert(8);
+        bst.insert(5);
+        bst.insert(11);
+        bst.insert(4);
+        bst.insert(6);
+        bst.insert(9);
+        bst.insert(12);
+
+        let expected = vec![4, 6, 5, 9, 12, 11, 8];
+        let bst_ref = &mut bst;
+        for (expected, val) in expected.iter().zip(bst_ref.into_iter()) {
+            assert_eq!(*expected, *val);
+
+            // modify the value of the node
+            *val += 1;
+        }
+
+        // iterate again over the tree and confirm the modified values
+        for (expected, val) in expected.iter().zip(bst_ref.into_iter()) {
+            assert_eq!(*expected + 1, *val);
         }
     }
 }

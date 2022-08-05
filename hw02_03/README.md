@@ -11,3 +11,6 @@ Implementation and testing based on the exercies from https://github.com/dhole/r
 
 ** Part 2: **
 * BST from part 1 but with generics and iterators (into_iter, iter and mut iter)
+* into_iter: traverses the tree in-order
+* iter: traverses the tree pre-order
+* iter_mut: traverses the tree post-order
